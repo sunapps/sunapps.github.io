@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Incidence des Rayons Solaires</title>
+    <style>
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 5px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <select id="locationSelect" onchange="calculateSolarIncidence()">
+        <option value="">Choisir ville</option>
+        <option value="Amiens">Amiens</option>
+		<option value="Angers">Angers</option>
+		<option value="Annecy">Annecy</option>
+<option value="Bordeaux">Bordeaux</option>
+<option value="Brest">Brest</option>
+<option value="Clermont-Ferrand">Clermont-Ferrand</option>
+<option value="Dijon">Dijon</option>
+<option value="Grenoble">Grenoble</option>
+<option value="La Rochelle">La Rochelle</option>
+<option value="Le Havre">Le Havre</option>
+<option value="Le Mans">Le Mans</option>
+<option value="Lille">Lille</option>
+<option value="Limoges">Limoges</option>
+<option value="Lyon">Lyon</option>
+<option value="Marseille">Marseille</option>
+<option value="Montpellier">Montpellier</option>
+<option value="Nantes">Nantes</option>
+<option value="Nice">Nice</option>
+<option value="Nîmes">Nîmes</option>
+<option value="Paris">Paris</option>
+<option value="Reims">Reims</option>
+<option value="Rennes">Rennes</option>
+<option value="Saint-Denis">Saint-Denis</option>
+<option value="Saint-Étienne">Saint-Étienne</option>
+<option value="Strasbourg">Strasbourg</option>
+<option value="Toulon">Toulon</option>
+<option value="Toulouse">Toulouse</option>
+<option value="Tours">Tours</option>
+<option value="Villeurbanne">Villeurbanne</option>
+    </select>
+    <table id="solarTable">
+        <thead>
+            <tr>
+                <th>Mois</th>
+                <th>Incidences des rayons solaires (° verticale)</th>
+                <th>Inclinaison panneau théorique calculée (°)</th>
+                <th>Angle de réglage du panneau solaire (° horizontal)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Les résultats seront affichés ici -->
+        </tbody>
+    </table>
+
+    <script>
+        var latitudes = {
+    "Aix-en-Provence": 43.5297,
+    "Amiens": 49.8942,
+    "Angers": 47.4784,
+    "Annecy": 45.8992,
+    "Bordeaux": 44.8378,
+    "Brest": 48.3904,
+    "Clermont-Ferrand": 45.7772,
+    "Dijon": 47.3220,
+    "Grenoble": 45.1885,
+    "La Rochelle": 46.1603,
+    "Le Havre": 49.4944,
+    "Le Mans": 48.0061,
+    "Lille": 50.6292,
+    "Limoges": 45.8336,
+    "Lyon": 45.7640,
+    "Marseille": 43.2965,
+    "Montpellier": 43.6108,
+    "Nantes": 47.2184,
+    "Nice": 43.7102,
+    "Nîmes": 43.8367,
+    "Paris": 48.8566,
+    "Reims": 49.2628,
+    "Rennes": 48.1173,
+    "Saint-Denis": 48.9362,
+    "Saint-Étienne": 45.4397,
+    "Strasbourg": 48.5734,
+    "Toulon": 43.1242,
+    "Toulouse": 43.6047,
+    "Tours": 47.3941,
+    "Villeurbanne": 45.7719
+        };
+
+        function solarDeclination(dayOfYear) {
+            return 23.45 * Math.sin(Math.PI / 180 * (360 / 365 * (dayOfYear - 81)));
+        }
+
+        function solarIncidence(latitude, dayOfYear) {
+            let declination = solarDeclination(dayOfYear);
+            return 90 - Math.abs(latitude - declination);
+        }
+
+        function calculateSolarIncidence() {
+            var locationSelect = document.getElementById('locationSelect');
+            var latitude = latitudes[locationSelect.value];
+            if (!latitude) return; // Ne rien faire si aucune ville n'est sélectionnée
+
+            var daysOfMonth = {
+                "Janvier": 17, "Février": 47, "Mars": 75, "Avril": 105,
+                "Mai": 135, "Juin": 162, "Juillet": 198, "Août": 228,
+                "Septembre": 258, "Octobre": 288, "Novembre": 318, "Décembre": 344
+            };
+            var tiltAngles = [27, 35, 42];
+            var tbody = document.getElementById('solarTable').getElementsByTagName('tbody')[0];
+            tbody.innerHTML = '';
+
+            for (var month in daysOfMonth) {
+                var incidence = solarIncidence(latitude, daysOfMonth[month]);
+                var panelTilt = 90 - incidence;
+                var closestTilt = tiltAngles.reduce((prev, curr) => (Math.abs(curr - panelTilt) < Math.abs(prev - panelTilt) ? curr : prev));
+
+                var row = tbody.insertRow();
+                var cell1 = row.insertCell(0);
+                var cell2 = row.insertCell(1);
+                var cell3 = row.insertCell(2);
+                var cell4 = row.insertCell(3);
+
+                cell1.innerHTML = month;
+                cell2.innerHTML = incidence.toFixed(2);
+                cell3.innerHTML = panelTilt.toFixed(2);
+                cell4.innerHTML = closestTilt;
+            }
+        }
+    </script>
+</body>
+</html>
+
